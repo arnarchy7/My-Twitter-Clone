@@ -6,6 +6,7 @@ import { Container, Col, Row } from 'react-bootstrap';
 
 import SideMenu from './components/SideMenu';
 import Home from './components/Home';
+import SideBar from './components/SideBar';
 import Explore from './components/Explore';
 import Notifications from './components/Notifications';
 import Messages from './components/Messages';
@@ -31,7 +32,9 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
               </Routes>
             </Col>
-            <Col sm={3} />
+            <Col sm={3}>
+              <SideBar />
+            </Col>
           </Row>
         </Container>
       </div>

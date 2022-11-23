@@ -1,7 +1,7 @@
 import React from 'react';
 import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container, Col, Row } from 'react-bootstrap';
+import { Container, Col, Row, Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import {
   HouseHeartFill,
@@ -18,7 +18,7 @@ function SideMenu() {
   return (
     <div>
       <Container>
-        <Row className="App">
+        <Row>
           <Col>
             <Row className="Row-SideBar">
               <Col>
@@ -80,6 +80,9 @@ function SideMenu() {
                   <h5>Profile</h5>
                 </NavLink>
               </Col>
+            </Row>
+            <Row className="Row-SideBar">
+              <Button className="TweetButtonSideMenu">Tweet</Button>
             </Row>
           </Col>
         </Row>
