@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../App.css';
 
 import { Container, Row, Col, Image, Form, Button, ToggleButton, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Chat, HeartFill, Recycle } from 'react-bootstrap-icons';
+import axios from 'axios';
+import moment from 'moment';
 import profilePic from '../assets/default_profile.png';
 import Comment from './Comment';
 
@@ -36,6 +38,48 @@ function Home() {
 
   const [checked, setChecked] = useState(false);
 
+  const [tweets, setTweets] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getTweets = async () => {
+    try {
+      const result = await axios.get('https://localhost:7212/api');
+      setTweets(result.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getUser = async (tweetId) => {
+    try {
+      // eslint-disable-next-line no-template-curly-in-string
+      const result = await axios.get(`https://localhost:7212/api/users/${tweetId}`);
+      setUsers((prevUsers) => [...prevUsers, result.data]);
+      // console.log(userResult.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getTweets();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+    tweets.forEach((tweet) => {
+      getUser(tweet.id);
+    });
+  }, [isLoading]);
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <Container className="Main-Col">
       <Row>
@@ -48,7 +92,7 @@ function Home() {
         <Card>
           <Row>
             <Col xs={1} style={{ padding: 0 }}>
-              <Image src={profilePic} roundedCircle />
+              <Image src={profilePic} roundedCircle fluid />
             </Col>
             <Col>
               <Row>
@@ -69,55 +113,55 @@ function Home() {
       </Row>
       <Row>
         <Wrapper>
-          <Card>
-            <Row>
-              <Col xs={1} style={{ padding: 0 }}>
-                <Image src={profilePic} roundedCircle />
-              </Col>
-              <Col>
-                <Row style={{ margin: 0, height: '20px' }}>
-                  <p>
-                    <span style={{ fontWeight: 'bold' }}>Arnar Jón</span>{' '}
-                    <span style={{ color: 'grey', fontSize: '15px' }}>@ArnarJon - Nov 19</span>
-                  </p>
-                </Row>
-                <Row style={{ margin: 0 }}>
-                  <p>
-                    <span style={{ fontSize: '15px' }}>
-                      {' '}
-                      Bla bla bla bla bal bbla yakety yak bull. Haltu kjafti
-                    </span>
-                  </p>
-                </Row>
-                <Row style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
-                  <Button className="IconButton" onClick={handleShow}>
-                    <Chat size={16} />
-                  </Button>
-
-                  <Button className="IconButton">
-                    <Recycle size={16} />
-                  </Button>
-
-                  {/*
-                  <svg style={{ height: '24px', width: '48px' }}>
-                    <g>
-                      <path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z" />
-                    </g>
-              </svg> */}
-                  <ToggleButton
-                    className={checked ? 'HeartButton' : 'PressedHeartButton'}
-                    id="toggle-check"
-                    type="checkbox"
-                    checked={checked}
-                    value="1"
-                    onChange={(e) => setChecked(e.currentTarget.checked)}
-                  >
-                    <HeartFill size={16} style={{ width: '40px' }} />
-                  </ToggleButton>
-                </Row>
-              </Col>
-            </Row>
-          </Card>
+          {[...tweets].reverse().map((tweet) => (
+            <Card key={tweet.id}>
+              {users.map(
+                (user) =>
+                  user.userId === tweet.userId && (
+                    <Row key={user.userId}>
+                      <Col xs={1} style={{ padding: 0 }}>
+                        <Image src={user.imageURL} roundedCircle fluid />
+                      </Col>
+                      <Col>
+                        <Row style={{ margin: 0, height: '20px' }}>
+                          <p>
+                            <span style={{ fontWeight: 'bold' }}>{user.displayName}</span>{' '}
+                            <span style={{ color: 'grey', fontSize: '15px' }}>
+                              @{user.handle} - {moment(tweet.tweetCreated).format('Do MMM YYYY')}{' '}
+                            </span>
+                          </p>
+                        </Row>
+                        <Row style={{ margin: 0 }}>
+                          <p>
+                            <span style={{ fontSize: '15px' }}>{tweet.tweetBody}</span>
+                          </p>
+                        </Row>
+                        <Row
+                          style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}
+                        >
+                          <Button className="IconButton" onClick={handleShow}>
+                            <Chat size={16} />
+                          </Button>
+                          <Button className="IconButton">
+                            <Recycle size={16} />
+                          </Button>
+                          <ToggleButton
+                            className={checked ? 'PressedHeartButton' : 'HeartButton'}
+                            id="toggle-check"
+                            type="checkbox"
+                            checked={checked}
+                            value="1"
+                            onChange={(e) => setChecked(e.currentTarget.checked)}
+                          >
+                            <HeartFill size={16} style={{ width: '40px' }} />
+                          </ToggleButton>
+                        </Row>
+                      </Col>
+                    </Row>
+                  )
+              )}
+            </Card>
+          ))}
         </Wrapper>
       </Row>
 
@@ -140,7 +184,7 @@ function Home() {
                   <p>
                     <span style={{ fontSize: '15px' }}>
                       {' '}
-                      Bla bla bla bla bal bbla yakety yak bull. Haltu kjafti
+                      I know I believe in nothing. But it is my nothing.
                     </span>
                   </p>
                 </Row>

@@ -50,6 +50,15 @@
   box-shadow: none !important; 
 }
 
+.SearchForm{
+  background-color: rgb(239, 243, 244) !important;
+}
+
+.input-group-text{
+  border: 0 !important;
+  background-color: rgb(239, 243, 244) !important;
+}
+
 .TweetButton{
   background-color: #1DA1F2 !important;
   border: 0px !important;
@@ -62,6 +71,13 @@
   border: 0px !important;
   border-radius: 50px !important;
   width: 80% !important;
+}
+
+.FollowButton{
+  background-color: #1DA1F2 !important;
+  border: 0px !important;
+  border-radius: 50px !important;
+  width: 70px !important;
 }
 
 .IconButton{
