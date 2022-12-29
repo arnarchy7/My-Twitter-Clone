@@ -12,6 +12,7 @@ import Notifications from './components/Notifications';
 import Messages from './components/Messages';
 import Bookmarks from './components/Bookmarks';
 import Profile from './components/Profile';
+import Tweet from './components/Tweet';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/tweet/:tweetId" element={<Tweet />} />
               </Routes>
             </Col>
             <Col sm={3}>
