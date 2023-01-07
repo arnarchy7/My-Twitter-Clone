@@ -32,14 +32,65 @@ const Card = styled.div`
 function ReplyWrapper() {
   const { tweetId } = useParams();
 
-  const [tweetLikes, setTweetLikes] = useState({});
-  const handleChange = (e, id) => {
-    setTweetLikes({ ...tweetLikes, [id]: e.currentTarget.checked });
-  };
+  const [replyLikes, setReplyLikes] = useState({});
 
   const [replies, setReplies] = useState([]);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleChange = async (e, id) => {
+    const liked = e.currentTarget.checked;
+    if (liked) {
+      try {
+        await axios.post(`https://localhost:7212/api/likedreplies/`, { replyId: id, userId: 6 });
+        setReplyLikes({ ...replyLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        await axios.delete(`https://localhost:7212/api/likedreplies/replyid/${id}`);
+        setReplyLikes({ ...replyLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const handleCount = async (e, id) => {
+    try {
+      const replyIndex = replies.findIndex((reply) => reply.id === id);
+
+      const updatedReplies = [...replies];
+      updatedReplies[replyIndex].likeCount = e.currentTarget.checked
+        ? replies[replyIndex].likeCount + 1
+        : replies[replyIndex].likeCount - 1;
+      setReplies(updatedReplies);
+      setReplyLikes({ ...replyLikes, [id]: e.currentTarget.checked });
+
+      const payload = {
+        likeCount: updatedReplies[replyIndex].likeCount,
+
+        retweetCount: updatedReplies[replyIndex].retweetCount,
+        createdAt: updatedReplies[replyIndex].createdAt,
+        userId: updatedReplies[replyIndex].userId,
+        id: updatedReplies[replyIndex].id,
+        tweetId: updatedReplies[replyIndex].tweetId,
+      };
+      await axios.put(`https://localhost:7212/api/replies/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChangeAndCount = (e, id) => {
+    handleChange(e, id);
+    handleCount(e, id);
+  };
 
   const getReplies = async () => {
     try {
@@ -53,7 +104,6 @@ function ReplyWrapper() {
 
   const getUser = async (userId) => {
     try {
-      // eslint-disable-next-line no-template-curly-in-string
       const result = await axios.get(`https://localhost:7212/api/users/${userId}`);
       setUsers((prevUsers) => [...prevUsers, { userId: result.data.userId, ...result.data }]);
     } catch (error) {
@@ -63,6 +113,19 @@ function ReplyWrapper() {
 
   useEffect(() => {
     getReplies();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await axios.get(`https://localhost:7212/api/likedreplies/user/6`);
+      const likedReplies = response.data;
+
+      likedReplies.forEach((reply) => {
+        replyLikes[reply.replyId] = true;
+      });
+      setReplyLikes(replyLikes);
+    }
+    fetchData();
   }, []);
 
   const memoizedUsers = useMemo(() => {
@@ -87,7 +150,7 @@ function ReplyWrapper() {
     <Container>
       <Row>
         <Wrapper>
-          {[...replies].reverse().map((reply) => (
+          {replies.map((reply) => (
             <Card key={ReplyWrapper.id}>
               {Object.values(memoizedUsers).map(
                 (user) =>
@@ -121,16 +184,18 @@ function ReplyWrapper() {
                 </Button>
                 <Button className="IconButton">
                   <Recycle size={16} />
+                  <p style={{ color: 'grey', fontSize: '14px ' }}>{`${reply.retweetCount || 0}`}</p>
                 </Button>
                 <ToggleButton
-                  className={tweetLikes[reply.id] ? 'PressedHeartButton' : 'HeartButton'}
+                  className={replyLikes[reply.id] ? 'PressedHeartButton' : 'HeartButton'}
                   id={reply.id}
                   type="checkbox"
-                  checked={tweetLikes[reply.id]}
+                  checked={replyLikes[reply.id]}
                   value="1"
-                  onChange={(e) => handleChange(e, reply.id)}
+                  onChange={(e) => handleChangeAndCount(e, reply.id)}
                 >
                   <HeartFill size={16} style={{ width: '40px' }} />
+                  <p style={{ color: 'grey', fontSize: '14px ' }}>{`${reply.likeCount || 0}`}</p>
                 </ToggleButton>
               </Row>
             </Card>

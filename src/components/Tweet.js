@@ -21,15 +21,60 @@ const Card = styled.div`
 `;
 
 function Tweet() {
-  const [tweetLikes, setTweetLikes] = useState({});
-  const handleChange = (e, id) => {
-    setTweetLikes({ ...tweetLikes, [id]: e.currentTarget.checked });
-  };
-
   const { tweetId } = useParams();
 
   const [tweet, setTweet] = useState([]);
   const [user, setUser] = useState([]);
+  const [tweetReplies, setTweetReplies] = useState({});
+  const [tweetLikes, setTweetLikes] = useState({});
+  const handleChange = async (e, id) => {
+    const liked = e.currentTarget.checked;
+    if (liked) {
+      try {
+        await axios.post(`https://localhost:7212/api/likedtweets/`, { tweetId: id, userId: 6 });
+        setTweetLikes({ ...tweetLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        await axios.delete(`https://localhost:7212/api/likedtweets/tweet/${tweetId}`);
+        setTweetLikes({ ...tweetLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const handleCount = async (e, id) => {
+    try {
+      const updatedTweet = { ...tweet };
+      updatedTweet.likeCount = e.currentTarget.checked ? tweet.likeCount + 1 : tweet.likeCount - 1;
+      setTweet(updatedTweet);
+      setTweetLikes({ ...tweetLikes, [id]: e.currentTarget.checked });
+
+      const payload = {
+        likeCount: updatedTweet.likeCount,
+        tweetBody: updatedTweet.tweetBody,
+        retweetCount: updatedTweet.retweetCount,
+        tweetCreated: updatedTweet.tweetCreated,
+        userId: updatedTweet.userId,
+        id: updatedTweet.id,
+      };
+      await axios.put(`https://localhost:7212/api/${tweetId}`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChangeAndCount = (e, id) => {
+    handleChange(e, id);
+    handleCount(e, id);
+  };
 
   const getTweet = async () => {
     try {
@@ -49,6 +94,16 @@ function Tweet() {
     }
   };
 
+  const fetchReplies = async (id) => {
+    try {
+      const response = await axios.get(`https://localhost:7212/api/replies/tweet/${tweetId}`);
+      const replies = response.data;
+      setTweetReplies({ [id]: replies.length });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     getTweet();
   }, []);
@@ -56,6 +111,23 @@ function Tweet() {
   useEffect(() => {
     getUser();
   }, [tweet]);
+
+  useEffect(() => {
+    fetchReplies(tweet.id);
+  }, [tweet]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await axios.get(`https://localhost:7212/api/likedtweets/user/6`);
+      const likedTweets = response.data;
+
+      likedTweets.forEach((tweetlike) => {
+        tweetLikes[tweetlike.tweetId] = true;
+      });
+      setTweetLikes(tweetLikes);
+    }
+    fetchData();
+  }, []);
 
   return (
     <Container className="Main-Col">
@@ -92,9 +164,11 @@ function Tweet() {
           <Row style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
             <Button className="IconButton">
               <Chat size={16} />
+              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweetReplies[tweet.id] || 0}`}</p>
             </Button>
             <Button className="IconButton">
               <Recycle size={16} />
+              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.retweetCount || 0}`}</p>
             </Button>
             <ToggleButton
               className={tweetLikes[tweet.id] ? 'PressedHeartButton' : 'HeartButton'}
@@ -102,9 +176,10 @@ function Tweet() {
               type="checkbox"
               checked={tweetLikes[tweet.id]}
               value="1"
-              onChange={(e) => handleChange(e, tweet.id)}
+              onChange={(e) => handleChangeAndCount(e, tweet.id)}
             >
               <HeartFill size={16} style={{ width: '40px' }} />
+              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.likeCount || 0}`}</p>
             </ToggleButton>
           </Row>
         </Card>

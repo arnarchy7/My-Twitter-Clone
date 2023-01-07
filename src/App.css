@@ -96,15 +96,18 @@
   background-color: white !important;
   color: black !important;
   border: 0px !important; 
-  width: fit-content !important;
+  width: 60px !important;
+  display: flex !important;
+  justify-content: space-between;
 }
 
 .HeartButton{
   border: 0px !important;
   background-color: white !important;
   color: black !important;
-  width: fit-content !important;
-  ;
+  width: 60px !important;
+  display: flex !important;
+  justify-content: space-between;
 }
 
 .PressedHeartButton{
@@ -112,7 +115,9 @@
   background-color: white !important;
   color: #1DA1F2 !important;
   fill: #1DA1F2 !important;
-  width: fit-content !important;
+  width: 60px !important;
+  display: flex !important;
+  justify-content: space-between;
 }
 
 

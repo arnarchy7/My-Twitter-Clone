@@ -31,11 +31,6 @@ const Card = styled.div`
 `;
 
 function TweetWrapper() {
-  const [tweetLikes, setTweetLikes] = useState({});
-  const handleChange = (e, id) => {
-    setTweetLikes({ ...tweetLikes, [id]: e.currentTarget.checked });
-  };
-
   const [show, setShow] = useState(false);
   const [modalData, setModalData] = useState({});
 
@@ -48,6 +43,76 @@ function TweetWrapper() {
   const [tweets, setTweets] = useState([]);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tweetLikes, setTweetLikes] = useState({});
+
+  const [tweetReplies, setTweetReplies] = useState({});
+
+  const updateTweetReplies = (newReplies) => {
+    setTweetReplies((prevReplies) => ({ ...prevReplies, ...newReplies }));
+  };
+
+  const fetchReplies = async (id) => {
+    try {
+      const response = await axios.get(`https://localhost:7212/api/replies/tweet/${id}`);
+      const replies = response.data;
+      updateTweetReplies({ [id]: replies.length });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChange = async (e, id) => {
+    const liked = e.currentTarget.checked;
+    if (liked) {
+      try {
+        await axios.post(`https://localhost:7212/api/likedtweets/`, { tweetId: id, userId: 6 });
+        setTweetLikes({ ...tweetLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        await axios.delete(`https://localhost:7212/api/likedtweets/tweet/${id}`);
+        setTweetLikes({ ...tweetLikes, [id]: liked });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const handleCount = async (e, id) => {
+    try {
+      const tweetIndex = tweets.findIndex((tweet) => tweet.id === id);
+
+      const updatedTweets = [...tweets];
+      updatedTweets[tweetIndex].likeCount = e.currentTarget.checked
+        ? tweets[tweetIndex].likeCount + 1
+        : tweets[tweetIndex].likeCount - 1;
+      setTweets(updatedTweets);
+      setTweetLikes({ ...tweetLikes, [id]: e.currentTarget.checked });
+
+      const payload = {
+        likeCount: updatedTweets[tweetIndex].likeCount,
+        tweetBody: updatedTweets[tweetIndex].tweetBody,
+        retweetCount: updatedTweets[tweetIndex].retweetCount,
+        tweetCreated: updatedTweets[tweetIndex].tweetCreated,
+        userId: updatedTweets[tweetIndex].userId,
+        id: updatedTweets[tweetIndex].id,
+      };
+      await axios.put(`https://localhost:7212/api/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChangeAndCount = (e, id) => {
+    handleChange(e, id);
+    handleCount(e, id);
+  };
 
   const getTweets = async () => {
     try {
@@ -61,7 +126,6 @@ function TweetWrapper() {
 
   const getUser = async (userId) => {
     try {
-      // eslint-disable-next-line no-template-curly-in-string
       const result = await axios.get(`https://localhost:7212/api/users/${userId}`);
       setUsers((prevUsers) => [...prevUsers, { userId: result.data.userId, ...result.data }]);
     } catch (error) {
@@ -71,6 +135,25 @@ function TweetWrapper() {
 
   useEffect(() => {
     getTweets();
+  }, []);
+
+  useEffect(() => {
+    tweets.forEach((tweet) => {
+      fetchReplies(tweet.id);
+    });
+  }, [tweets]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await axios.get(`https://localhost:7212/api/likedtweets/user/6`);
+      const likedTweets = response.data;
+
+      likedTweets.forEach((tweet) => {
+        tweetLikes[tweet.tweetId] = true;
+      });
+      setTweetLikes(tweetLikes);
+    }
+    fetchData();
   }, []);
 
   const memoizedUsers = useMemo(() => {
@@ -127,9 +210,13 @@ function TweetWrapper() {
               <Row style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
                 <Button className="IconButton" onClick={() => handleShow(tweet)}>
                   <Chat size={16} />
+                  <p style={{ color: 'grey', fontSize: '14px ' }}>{`${
+                    tweetReplies[tweet.id] || 0
+                  }`}</p>
                 </Button>
                 <Button className="IconButton">
                   <Recycle size={16} />
+                  <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.retweetCount || 0}`}</p>
                 </Button>
                 <ToggleButton
                   className={tweetLikes[tweet.id] ? 'PressedHeartButton' : 'HeartButton'}
@@ -137,9 +224,10 @@ function TweetWrapper() {
                   type="checkbox"
                   checked={tweetLikes[tweet.id]}
                   value="1"
-                  onChange={(e) => handleChange(e, tweet.id)}
+                  onChange={(e) => handleChangeAndCount(e, tweet.id)}
                 >
                   <HeartFill size={16} style={{ width: '40px' }} />
+                  <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.likeCount || 0}`}</p>
                 </ToggleButton>
               </Row>
             </Card>

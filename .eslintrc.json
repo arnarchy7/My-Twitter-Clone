@@ -27,7 +27,8 @@
     "rules": {
         "prettier/prettier": "warn",
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-        "react/state-in-constructor": "off"
+        "react/state-in-constructor": "off",
+        "no-console": "off"
     }
 
     
