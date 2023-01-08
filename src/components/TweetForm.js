@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
-import { Col, Row, Form, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Col, Row, Form, Button, Image } from 'react-bootstrap';
 import axios from 'axios';
 
 function TweetForm() {
   const [tweetBody, setTweetBody] = useState('');
+  const [mainUser, setMainUser] = useState([]);
+
+  const getMainUser = async () => {
+    const result = await axios.get(`https://localhost:7212/api/users/6`);
+    setMainUser(result.data);
+  };
+
+  useEffect(() => {
+    getMainUser();
+  }, []);
 
   const handleChange = (event) => {
     setTweetBody(event.target.value);
@@ -30,15 +40,20 @@ function TweetForm() {
   };
 
   return (
-    <Col>
+    <Container>
       <Row>
-        <Form.Control
-          type="input"
-          placeholder="What's happening?"
-          fluid="true"
-          value={tweetBody}
-          onChange={handleChange}
-        />
+        <Col xs={1} style={{ padding: 0 }}>
+          <Image src={mainUser.imageURL} roundedCircle fluid />
+        </Col>
+        <Col>
+          <Form.Control
+            type="input"
+            placeholder="What's happening?"
+            fluid="true"
+            value={tweetBody}
+            onChange={handleChange}
+          />
+        </Col>
       </Row>
       <br />
       <Row
@@ -51,7 +66,7 @@ function TweetForm() {
           Tweet
         </Button>
       </Row>
-    </Col>
+    </Container>
   );
 }
 

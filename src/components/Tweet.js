@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, NavLink } from 'react-router-dom';
 import '../App.css';
 import { Container, Row, Col, Image, Button, ToggleButton } from 'react-bootstrap';
 import styled from 'styled-components';
 import axios from 'axios';
-import { Chat, HeartFill, Recycle } from 'react-bootstrap-icons';
+import { Chat, HeartFill, Recycle, ArrowLeft } from 'react-bootstrap-icons';
 import moment from 'moment';
 import ReplyWrapper from './ReplyWrapper';
 import ReplyForm from './ReplyForm';
 
 const Card = styled.div`
-  //border-top: rgb(239, 243, 244) 1px solid;
   border-bottom: rgb(239, 243, 244) 1px solid;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  //margin-bottom: 0.5rem;
   width: 100%;
 `;
 
@@ -133,64 +131,76 @@ function Tweet() {
     <Container className="Main-Col">
       <Row>
         <div>
-          <h3>Tweet</h3>
+          <span style={{ display: 'flex' }}>
+            <NavLink className="NavLinkBack" to="/">
+              <ArrowLeft size={25} style={{ marginTop: '4px' }} />
+            </NavLink>
+            <h3 style={{ paddingLeft: '10px' }}>Tweet</h3>
+          </span>
+
           <br />
         </div>
       </Row>
+      <Row>
+        {tweet ? (
+          <Card key={tweet.id}>
+            <Row>
+              <Col xs={1} style={{ padding: 0 }}>
+                <Image src={user.imageURL} roundedCircle fluid />
+              </Col>
+              <Col>
+                <Row style={{ margin: 0, height: '20px' }}>
+                  <p>
+                    <span style={{ fontWeight: 'bold' }}>{user.displayName}</span>{' '}
+                    <span style={{ color: 'grey', fontSize: '15px' }}>
+                      @{user.handle} - {moment(tweet.tweetCreated).format('Do MMM YYYY')}{' '}
+                    </span>
+                  </p>
+                </Row>
+                <Row style={{ margin: 0 }}>
+                  <p>
+                    <span style={{ fontSize: '15px' }}>{tweet.tweetBody}</span>
+                  </p>
+                </Row>
+              </Col>
+            </Row>
 
-      {tweet ? (
-        <Card key={tweet.id}>
-          <Row>
-            <Col xs={1} style={{ padding: 0 }}>
-              <Image src={user.imageURL} roundedCircle fluid />
-            </Col>
-            <Col>
-              <Row style={{ margin: 0, height: '20px' }}>
-                <p>
-                  <span style={{ fontWeight: 'bold' }}>{user.displayName}</span>{' '}
-                  <span style={{ color: 'grey', fontSize: '15px' }}>
-                    @{user.handle} - {moment(tweet.tweetCreated).format('Do MMM YYYY')}{' '}
-                  </span>
-                </p>
-              </Row>
-              <Row style={{ margin: 0 }}>
-                <p>
-                  <span style={{ fontSize: '15px' }}>{tweet.tweetBody}</span>
-                </p>
-              </Row>
-            </Col>
-          </Row>
-
-          <Row style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
-            <Button className="IconButton">
-              <Chat size={16} />
-              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweetReplies[tweet.id] || 0}`}</p>
-            </Button>
-            <Button className="IconButton">
-              <Recycle size={16} />
-              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.retweetCount || 0}`}</p>
-            </Button>
-            <ToggleButton
-              className={tweetLikes[tweet.id] ? 'PressedHeartButton' : 'HeartButton'}
-              id={tweet.id}
-              type="checkbox"
-              checked={tweetLikes[tweet.id]}
-              value="1"
-              onChange={(e) => handleChangeAndCount(e, tweet.id)}
-            >
-              <HeartFill size={16} style={{ width: '40px' }} />
-              <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.likeCount || 0}`}</p>
-            </ToggleButton>
-          </Row>
+            <Row style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}>
+              <Button className="IconButton">
+                <Chat size={16} />
+                <p style={{ color: 'grey', fontSize: '14px ' }}>{`${
+                  tweetReplies[tweet.id] || 0
+                }`}</p>
+              </Button>
+              <Button className="IconButton">
+                <Recycle size={16} />
+                <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.retweetCount || 0}`}</p>
+              </Button>
+              <ToggleButton
+                className={tweetLikes[tweet.id] ? 'PressedHeartButton' : 'HeartButton'}
+                id={tweet.id}
+                type="checkbox"
+                checked={tweetLikes[tweet.id]}
+                value="1"
+                onChange={(e) => handleChangeAndCount(e, tweet.id)}
+              >
+                <HeartFill size={16} />
+                <p style={{ color: 'grey', fontSize: '14px ' }}>{`${tweet.likeCount || 0}`}</p>
+              </ToggleButton>
+            </Row>
+          </Card>
+        ) : (
+          <div>Loading...</div>
+        )}
+      </Row>
+      <Row>
+        <Card>
+          <ReplyForm />
         </Card>
-      ) : (
-        <div>Loading...</div>
-      )}
-
-      <Card>
-        <ReplyForm />
-      </Card>
-      <ReplyWrapper />
+      </Row>
+      <Row>
+        <ReplyWrapper />
+      </Row>
     </Container>
   );
 }

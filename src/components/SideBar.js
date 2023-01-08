@@ -13,7 +13,6 @@ const WhoToFollowCard = styled.div`
   padding-right: 1rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  //margin-bottom: 0.5rem;
   width: 100%;
 `;
 

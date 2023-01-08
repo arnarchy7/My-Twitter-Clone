@@ -7,7 +7,7 @@ import { Chat, HeartFill, Recycle } from 'react-bootstrap-icons';
 import axios from 'axios';
 import moment from 'moment';
 import { NavLink } from 'react-router-dom';
-import Comment from './Comment';
+import ReplyFormModal from './ReplyFormModal';
 
 const Wrapper = styled.div`
   display: flex;
@@ -17,17 +17,19 @@ const Wrapper = styled.div`
   height: 100%;
   box-sizing: border-box;
   padding: 0px;
+  width: 100%;
 `;
 
 const Card = styled.div`
-  //border-top: rgb(239, 243, 244) 1px solid;
   border-bottom: rgb(239, 243, 244) 1px solid;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  //margin-bottom: 0.5rem;
   width: 100%;
+  &:hover {
+    background-color: rgb(239, 243, 244);
+  }
 `;
 
 function TweetWrapper() {
@@ -175,7 +177,7 @@ function TweetWrapper() {
   }
 
   return (
-    <Container>
+    <Container style={{ paddingRight: 0, paddingLeft: 0 }}>
       <Row>
         <Wrapper>
           {[...tweets].reverse().map((tweet) => (
@@ -267,7 +269,7 @@ function TweetWrapper() {
           </Container>
         </Modal.Body>
         <Modal.Footer>
-          <Comment tweetId={modalData.id} />{' '}
+          <ReplyFormModal tweetId={modalData.id} />{' '}
         </Modal.Footer>
       </Modal>
     </Container>

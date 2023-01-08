@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Col, Row, Form, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Col, Row, Form, Button, Image } from 'react-bootstrap';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 
@@ -9,6 +9,16 @@ function ReplyFormModal(props) {
   };
   const { tweetId } = props;
   const [Body, setBody] = useState('');
+  const [mainUser, setMainUser] = useState([]);
+
+  const getMainUser = async () => {
+    const result = await axios.get(`https://localhost:7212/api/users/6`);
+    setMainUser(result.data);
+  };
+
+  useEffect(() => {
+    getMainUser();
+  }, []);
 
   const handleChange = (event) => {
     setBody(event.target.value);
@@ -37,15 +47,20 @@ function ReplyFormModal(props) {
   };
 
   return (
-    <Col>
+    <Container>
       <Row>
-        <Form.Control
-          type="input"
-          placeholder="Tweet your reply"
-          fluid="true"
-          value={Body}
-          onChange={handleChange}
-        />
+        <Col xs={1} style={{ padding: 0 }}>
+          <Image src={mainUser.imageURL} roundedCircle fluid />
+        </Col>
+        <Col>
+          <Form.Control
+            type="input"
+            placeholder="Tweet your reply"
+            fluid="true"
+            value={Body}
+            onChange={handleChange}
+          />
+        </Col>
       </Row>
       <br />
       <Row
@@ -58,7 +73,7 @@ function ReplyFormModal(props) {
           Reply
         </Button>
       </Row>
-    </Col>
+    </Container>
   );
 }
 

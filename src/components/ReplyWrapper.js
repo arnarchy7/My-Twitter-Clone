@@ -16,17 +16,19 @@ const Wrapper = styled.div`
   height: 100%;
   box-sizing: border-box;
   padding: 0px;
+  width: 100%;
 `;
 
 const Card = styled.div`
-  //border-top: rgb(239, 243, 244) 1px solid;
   border-bottom: rgb(239, 243, 244) 1px solid;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  //margin-bottom: 0.5rem;
   width: 100%;
+  &:hover {
+    background-color: rgb(239, 243, 244);
+  }
 `;
 
 function ReplyWrapper() {
@@ -70,7 +72,7 @@ function ReplyWrapper() {
 
       const payload = {
         likeCount: updatedReplies[replyIndex].likeCount,
-
+        body: updatedReplies[replyIndex].body,
         retweetCount: updatedReplies[replyIndex].retweetCount,
         createdAt: updatedReplies[replyIndex].createdAt,
         userId: updatedReplies[replyIndex].userId,

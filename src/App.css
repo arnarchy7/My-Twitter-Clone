@@ -1,6 +1,9 @@
 .App {
  /* text-align: center; */
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  margin-left: 24px !important;
+  margin-right: 12px !important;
 }
 
 .App-icon {
@@ -36,6 +39,18 @@
  }
 
  .NavLinkCard:hover{
+  color: black !important;
+  background-color: rgb(239, 243, 244);
+ }
+
+ .NavLinkBack{
+  display: flex !important; 
+  text-decoration: none !important;
+  color: black;
+  width: fit-content;
+ }
+
+ .NavLinkBack:hover{
   color: black !important;
  }
 
@@ -93,48 +108,49 @@
 }
 
 .IconButton{
-  background-color: white !important;
+  background-color: transparent !important;
   color: black !important;
   border: 0px !important; 
   width: 60px !important;
   display: flex !important;
   justify-content: space-between;
+  height: 30px;
 }
 
 .HeartButton{
   border: 0px !important;
-  background-color: white !important;
+  background-color: transparent !important;
   color: black !important;
   width: 60px !important;
   display: flex !important;
   justify-content: space-between;
+  height: 30px;
 }
 
 .PressedHeartButton{
   border: 0px !important;
-  background-color: white !important;
+  background-color: transparent !important;
   color: #1DA1F2 !important;
   fill: #1DA1F2 !important;
   width: 60px !important;
   display: flex !important;
   justify-content: space-between;
+  height: 30px;
 }
 
-
-
-/*
-.App-header {
- /* background-color: #282c34; //
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.btn{
+  transition: none !important;
 }
 
-.App-link {
-  color: #61dafb;
-} */
+.IconButton:hover,
+.HeartButton:hover,
+.PressedHeartButton:hover{
+  background-color: rgba(189, 227, 241, 0.534) !important;
+  
+  box-shadow: 0 0 5px #1DA1F2 !important;
+}
+
+.btn-check{
+  position: fixed !important;
+}
 
